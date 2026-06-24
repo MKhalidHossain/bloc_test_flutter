@@ -7,7 +7,8 @@ import 'package:test/feature/auth/data/models/user_model.dart';
 part 'api_service.g.dart';
 
 
-@RestApi(baseUrl: "http://localhost:8080")
+// @RestApi(baseUrl: "http://localhost:8080")
+@RestApi()
 
 abstract class UserApiService {
   factory UserApiService (Dio dio, {String baseUrl}) = _UserApiService;

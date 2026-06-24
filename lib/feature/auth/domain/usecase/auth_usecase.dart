@@ -1,12 +1,21 @@
-import 'package:test/feature/auth/data/models/user_model.dart';
-import 'package:test/feature/auth/domain/repository/auth_repository.dart';
+import 'package:test/core/utils/failure.dart';
 
-class AuthUsecase {
-  final AuthRepository authRepository;
 
-  AuthUsecase({required this.authRepository});
+// class AuthUsecase {
+//   final AuthRepository authRepository;
 
-  Future<UserModel> login(String username, String password) async {
-    return await authRepository.login(username, password);
-  }
+//   AuthUsecase({required this.authRepository});
+
+//   Future<UserModel> login(String username, String password) async {
+//     return await authRepository.login(username, password);
+//   }
+// }
+
+
+abstract class AuthUsecase<Type,Params> {
+  Future<Either<Failure, Type>> call(Params params);
+}
+
+class NoParams {
+  const NoParams();
 }
