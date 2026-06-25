@@ -1,23 +1,30 @@
 import 'package:dio/dio.dart';
-import 'package:test/core/Storage/secure_storage_service.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import '../../constants/api_constants.dart';
+import '../../constants/app_constants.dart';
 
 class AuthInterceptor extends Interceptor {
-  final SecureStorageService _storage;
-  final Dio _dio;
-  final VoidCallback? onAuthFailed;
+  final FlutterSecureStorage secureStorage;
+  // final Dio _dio;
+  // final VoidCallback? onAuthFailed;
 
-  AuthInterceptor({
-    required SecureStorageService storage,
-    required Dio dio,
-    required this.onAuthFailed,
-  }) : _storage = storage,
-       _dio = dio;
+  AuthInterceptor(this.secureStorage);
 
-  bool _isRefreshing = false;
+  @override
+  void onRequest(
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) async {
+    final isAuthEndpoint =
+        options.path == ApiConstants.logIn ||
+        options.path == ApiConstants.refresh;
 
-  final List<RequestOptions> _pendingRequests = [];
-
-  void onRequest
-  
+    if (!isAuthEndpoint) {
+      final token = await secureStorage.read(key: AppConstants.accessTokenKey);
+      if (token != null) {
+        options.headers['Authorization'] = 'Bearer $token';
+      }
+    }
+    handler.next(options);
+  }
 }

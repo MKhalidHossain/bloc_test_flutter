@@ -7,7 +7,6 @@ abstract class Failure {
   String toString() => message;
 }
 
-
 class ServerFailure extends Failure {
   const ServerFailure(super.message);
 }
@@ -16,11 +15,11 @@ class AuthFailure extends Failure {
   const AuthFailure(super.message);
 }
 
-class NotFoundFailure extends Failure{
+class NotFoundFailure extends Failure {
   const NotFoundFailure(super.message);
 }
 
-class NetworkFailure extends Failure{
+class NetworkFailure extends Failure {
   const NetworkFailure(super.message);
 }
 
@@ -28,6 +27,10 @@ class CacheFailure extends Failure {
   const CacheFailure(super.message);
 }
 
-class UnknownFailure extends Failure{
+class UnknownFailure extends Failure {
   const UnknownFailure(super.message);
+}
+
+class DoubleBookingFailure extends Failure {
+  const DoubleBookingFailure(super.message);
 }

@@ -1,36 +1,39 @@
-
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:test/core/constants/app_constants.dart';
 
-class SecureStorageService{
+class SecureStorageService {
   static const _storage = FlutterSecureStorage(
-    aOptions : AndroidOptions( encryptedSharedPreferences: true),
-    iOptions : IOSOptions( accessibility: KeychainAccessibility.first_unlock),
+    aOptions: AndroidOptions(encryptedSharedPreferences: true),
+    iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
+    // iOptions : IOSOptions( accessibility: IOSAccessibility.first_unlock),
   );
 
-  Future <void> saveToken({
+  Future<void> saveToken({
     required String accessToken,
     required String refreshToken,
-  }) async{
+  }) async {
     await _storage.write(key: AppConstants.accessTokenKey, value: accessToken);
-    await _storage.write(key: AppConstants.refreshTokenkey, value: refreshToken);
-  } 
-
-  Future<String?> getToken()async{
-    return await _storage.read(key: AppConstants.accessTokenKey); 
+    await _storage.write(
+      key: AppConstants.refreshTokenKey,
+      value: refreshToken,
+    );
   }
 
-  Future<String?> getRefreshToken()async{
-    return await _storage.read(key: AppConstants.refreshTokenkey);
+  Future<String?> getToken() async {
+    return await _storage.read(key: AppConstants.accessTokenKey);
   }
 
-  Future<void> clearToken()async{
+  Future<String?> getRefreshToken() async {
+    return await _storage.read(key: AppConstants.refreshTokenKey);
+  }
+
+  Future<void> clearToken() async {
     await _storage.delete(key: AppConstants.accessTokenKey);
-    await _storage.delete(key: AppConstants.refreshTokenkey);
+    await _storage.delete(key: AppConstants.refreshTokenKey);
   }
-  
-  Future<bool> hasToken()async{
+
+  Future<bool> hasToken() async {
     final token = await _storage.read(key: AppConstants.accessTokenKey);
-    return token!= null && token.isNotEmpty;
+    return token != null && token.isNotEmpty;
   }
 }

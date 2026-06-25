@@ -12,7 +12,7 @@ import 'package:test/feature/auth/data/models/auth_response_model.dart';
 @RestApi()
 
 abstract class AuthApiService {
-  factory AuthApiService (Dio dio, {String baseUrl}) = _UserApiService;
+  factory AuthApiService (Dio dio, {String baseUrl}) = _AuthApiService;
 
   @POST("/auth/login")
   // Future<UserModel> logIn(String username, String password);
