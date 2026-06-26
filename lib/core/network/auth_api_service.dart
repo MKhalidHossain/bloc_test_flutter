@@ -1,7 +1,7 @@
 
 import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
-import 'package:test/feature/auth/data/models/auth_request_model.dart';
+import 'package:test/feature/auth/data/models/login_request_model.dart';
 import 'package:test/feature/auth/data/models/auth_response_model.dart';
 
 

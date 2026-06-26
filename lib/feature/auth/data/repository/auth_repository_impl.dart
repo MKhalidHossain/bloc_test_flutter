@@ -1,20 +1,49 @@
-import 'package:test/core/network/auth_api_service.dart';
-import 'package:test/feature/auth/domain/repository/auth_repository.dart';
+import 'package:dartz/dartz.dart';
+import 'package:dio/dio.dart';
 
-import '../models/user_model.dart';
+import '../../../../core/Storage/secure_storage_service.dart';
+import '../../../../core/utils/failure.dart';
+import '../../domain/entitys/user_entities.dart';
+import '../../domain/repository/auth_repository.dart';
+import '../datasource/auth_remote_data_source.dart';
+
 
 class AuthRepositoryImpl implements AuthRepository {
-  final AuthApiService _apiService;
+  final AuthRemoteDataSource remoteDataSource;
+  final SecureStorageService secureStorageService;
 
-  AuthRepositoryImpl(this._apiService);
-
+  AuthRepositoryImpl({
+    required this.remoteDataSource,
+    required this.secureStorageService,
+    });
+  
   @override
-  Future<UserModel> login(String userName, String password) async {
-    try {
-      return await _apiService.logIn(
-        userName, password);
-    } catch (e) {
-      throw Exception(e);
+  Future<Either<Failure, UserEntity>> login(String userName, String password,) async{
+    try{
+      final authResponse = await remoteDataSource.login(userName, password);
+
+      await secureStorageService.saveToken(accessToken: authResponse.accessToken,
+       refreshToken: authResponse.refreshToken);
+
+       if (authResponse.user == null) {
+        return const Left(ServerFailure('Login succeeded but no user data returned '),
+        );
+       }
+
+       return Right(authResponse.user!);
+       
+    } on DioException catch (e){ 
+      final data = e.response?.data;
+      // final message = (data is Map && data['error'] != null) ? 
+
     }
   }
+  
+  @override
+  Future<Either<Failure, void>> logout() {
+    // TODO: implement logout
+    throw UnimplementedError();
+  }
+
+
 }

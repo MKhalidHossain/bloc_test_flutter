@@ -1,5 +1,5 @@
 import 'package:test/core/network/auth_api_service.dart';
-import 'package:test/feature/auth/data/models/auth_request_model.dart';
+import 'package:test/feature/auth/data/models/login_request_model.dart';
 import 'package:test/feature/auth/data/models/auth_response_model.dart';
 import 'auth_remote_data_source.dart';
 

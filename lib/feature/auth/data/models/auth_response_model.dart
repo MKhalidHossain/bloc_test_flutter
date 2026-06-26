@@ -1,13 +1,11 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:test/feature/auth/data/models/user_model.dart';
-
 import '../../domain/entitys/user_entities.dart';
 
 @JsonSerializable()
 class AUthResponseModel {
   final String accessToken;
   final String refreshToken;
-  final String expiresIn;
+  final int expiresIn;
   final String tokenType;
   final UserModel? user;
 
@@ -21,10 +19,10 @@ class AUthResponseModel {
 
   factory AUthResponseModel.fromJson(Map<String, dynamic> json) {
     return AUthResponseModel(
-      accessToken: json['access_token'],
-      refreshToken: json["refresh_token"],
-      expiresIn: json["expires_in"],
-      tokenType: json["token_type"],
+      accessToken: json['access_token'] as String ,
+      refreshToken: json["refresh_token"] as String,
+      expiresIn: json["expires_in"] as int,
+      tokenType: json["token_type"] as String,
       user: json['user'] != null
           ? UserModel.fromJson(json['user'] as Map<String, dynamic>)
           : null,
@@ -37,7 +35,7 @@ class AUthResponseModel {
   // Map<String, dynamic> toJson() => _$LoginResponseModelToJson(this);
 }
 
-class UserModel extends User {
+class UserModel extends UserEntity {
   const UserModel({
     required super.id,
     required super.username,
