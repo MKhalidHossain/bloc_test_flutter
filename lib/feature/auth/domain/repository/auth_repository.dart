@@ -6,4 +6,5 @@ import '../entitys/user_entities.dart';
 abstract class AuthRepository {
   Future<Either<Failure, UserEntity>> login(String userName, String password);
   Future<Either<Failure, void>> logout(); 
+  Future<Either<Failure, UserEntity?>> getCachedUser();
 }

@@ -36,4 +36,23 @@ class SecureStorageService {
     final token = await _storage.read(key: AppConstants.accessTokenKey);
     return token != null && token.isNotEmpty;
   }
+
+  Future<void> saveUser({
+    required String id,
+    required String username,
+    required String name,
+  }) async{
+    await _storage.write(key: AppConstants.userIdKey, value: id);
+    await _storage.write(key: AppConstants.usernameKey, value: username);
+    await _storage.write(key: AppConstants.userNameKey, value: name);
+  }
+
+  Future<Map<String, String>?> getCachedUser()async{
+    final id = await _storage.read(key: AppConstants.userIdKey);
+    final username = await _storage.read(key: AppConstants.userNameKey);
+    final name = await _storage.read(key: AppConstants.userNameKey);
+
+    if(id == null || username == null || name == null) return null;
+    return {'id': id, 'username': username, 'name': name};
+  }
 }
