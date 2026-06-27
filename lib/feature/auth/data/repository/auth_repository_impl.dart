@@ -2,7 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 
 import '../../../../core/Storage/secure_storage_service.dart';
-import '../../../../core/utils/failure.dart';
+import '../../../../core/error/failure.dart';
 import '../../domain/entitys/user_entities.dart';
 import '../../domain/repository/auth_repository.dart';
 import '../datasource/auth_remote_data_source.dart';
@@ -18,32 +18,49 @@ class AuthRepositoryImpl implements AuthRepository {
     });
   
   @override
-  Future<Either<Failure, UserEntity>> login(String userName, String password,) async{
+  Future<Either<Failure, UserEntity>> login(
+    String userName, 
+    String password,
+  ) async{
     try{
       final authResponse = await remoteDataSource.login(userName, password);
 
-      await secureStorageService.saveToken(accessToken: authResponse.accessToken,
-       refreshToken: authResponse.refreshToken);
+      await secureStorageService.saveToken(
+        accessToken: authResponse.accessToken,
+       refreshToken: authResponse.refreshToken,
+      );
 
        if (authResponse.user == null) {
-        return const Left(ServerFailure('Login succeeded but no user data returned '),
-        );
+        return const Left(
+          ServerFailure('Login succeeded but no user data returned '),
+        );                                                                                  
        }
 
        return Right(authResponse.user!);
-       
     } on DioException catch (e){ 
       final data = e.response?.data;
-      // final message = (data is Map && data['error'] != null) ? 
+      final message = (data is Map && data['error'] != null) 
+      ?  data['error'].toString() 
+      : 'Login Faild';
+      return Left(ServerFailure(message));
+    } catch(e){
+      return Left(UnknownFailure(e.toString()));
+    }
 
     }
+    @override
+  Future<Either<Failure, void>> logout() async{
+    try{
+      await secureStorageService.clearToken();
+      return const Right(null);
+    }catch(e){
+      return Left(CacheFailure(e.toString()));
+    }
+  }
+      
   }
   
-  @override
-  Future<Either<Failure, void>> logout() {
-    // TODO: implement logout
-    throw UnimplementedError();
-  }
+  
 
 
-}
+

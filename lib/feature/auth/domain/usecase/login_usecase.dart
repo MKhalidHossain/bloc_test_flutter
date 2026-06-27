@@ -3,9 +3,8 @@
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 
-
+import '../../../../core/error/failure.dart';
 import '../../../../core/usecase/usecase.dart';
-import '../../../../core/utils/failure.dart';
 import '../entitys/user_entities.dart';
 import '../repository/auth_repository.dart';
 

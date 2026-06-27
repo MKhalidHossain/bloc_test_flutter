@@ -9,7 +9,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   AuthRemoteDataSourceImpl({required this.apiService});
 
   @override
-  Future<AUthResponseModel> login(String username, String password) async {
+  Future<AuthResponseModel> login(String username, String password) async {
     return await apiService.logIn(
       LoginRequest(userName: username, password: password),
     );
