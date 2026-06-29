@@ -56,24 +56,19 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     AuthCheckRequested event,
     Emitter<AuthState> emit,
   ) async {
+    // We have a cached user (and token) -> proceed to the booking screen.
+    // We don't validate the token here; the RefreshTokenInterceptor will catch
+    // an expired token on the first real API call and silently refresh it.
     final result = await getCachedUserUsecase(const NoParams());
     result.fold(
       (failure) => emit(Unauthenticated()),
-      (user){
-        if(user== null){
+      (user) {
+        if (user == null) {
           emit(Unauthenticated());
-        }else{
+        } else {
           emit(AuthSuccess(user));
         }
-      }
+      },
     );
-    // We have a token, but we don't know if it's still valid until we
-    // actually call an authenticated endpoint. For this assessment,
-    // treat "token exists" as "proceed to booking screen" — the
-    // RefreshTokenInterceptor will catch an expired token on the
-    // first real API call and silently refresh it.
-    emit(
-      Unauthenticated(),
-    ); // placeholder until a real getCurrentUser usecase exists — see note below
   }
 }

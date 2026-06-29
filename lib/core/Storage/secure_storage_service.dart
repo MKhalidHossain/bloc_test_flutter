@@ -49,7 +49,7 @@ class SecureStorageService {
 
   Future<Map<String, String>?> getCachedUser()async{
     final id = await _storage.read(key: AppConstants.userIdKey);
-    final username = await _storage.read(key: AppConstants.userNameKey);
+    final username = await _storage.read(key: AppConstants.usernameKey);
     final name = await _storage.read(key: AppConstants.userNameKey);
 
     if(id == null || username == null || name == null) return null;

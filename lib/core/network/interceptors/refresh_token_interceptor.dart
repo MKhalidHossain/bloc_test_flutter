@@ -12,23 +12,32 @@ class RefreshTokenInterceptor extends Interceptor {
   RefreshTokenInterceptor(this.dio, this.secureStorageService);
 
   bool _isRefreshing = false;
-  final List<Completer<void>> _pendingRequests = [];
+  // Completers for requests that 401'd while a refresh is already in flight.
+  // They resolve with `true` once the new token is ready, or `false` if the
+  // refresh failed (so the request can fail fast instead of retrying blindly).
+  final List<Completer<bool>> _pendingRequests = [];
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) async {
     final isUnauthorized = err.response?.statusCode == 401;
     final isRefreshCall = err.requestOptions.path == ApiConstants.refresh;
 
-    if (isUnauthorized || isRefreshCall) {
+    // Only attempt a refresh for 401s on non-refresh endpoints. Anything else
+    // (including a failing refresh call itself) propagates as-is.
+    if (!isUnauthorized || isRefreshCall) {
       handler.next(err);
       return;
     }
 
+    // A refresh is already running — queue this request behind it.
     if (_isRefreshing) {
-      final completer = Completer<void>();
+      final completer = Completer<bool>();
       _pendingRequests.add(completer);
-      await completer.future;
-      return _retry(err.requestOptions, handler);
+      final refreshed = await completer.future;
+      if (refreshed) {
+        return _retry(err.requestOptions, handler);
+      }
+      return _failAuth(err, handler);
     }
 
     _isRefreshing = true;
@@ -36,9 +45,11 @@ class RefreshTokenInterceptor extends Interceptor {
       final refreshToken = await secureStorageService.getRefreshToken();
 
       if (refreshToken == null) {
+        _resolvePending(false);
         return _failAuth(err, handler);
       }
 
+      // A dedicated Dio with no interceptors so the refresh call can't recurse.
       final refreshDio = Dio(BaseOptions(baseUrl: ApiConstants.baseUrl));
       final response = await refreshDio.post(
         ApiConstants.refresh,
@@ -53,21 +64,21 @@ class RefreshTokenInterceptor extends Interceptor {
         refreshToken: newRefreshToken,
       );
 
-      for(final c in _pendingRequests){
-        c.complete();
-      }
-      _pendingRequests.clear();
-
+      _resolvePending(true);
       return _retry(err.requestOptions, handler);
     } catch (e) {
-      for(final c in _pendingRequests){
-        c.complete();
-      }
-      _pendingRequests.clear();
+      _resolvePending(false);
       return _failAuth(err, handler);
-    }finally{
-      _isRefreshing =false;
+    } finally {
+      _isRefreshing = false;
     }
+  }
+
+  void _resolvePending(bool refreshed) {
+    for (final c in _pendingRequests) {
+      if (!c.isCompleted) c.complete(refreshed);
+    }
+    _pendingRequests.clear();
   }
 
   Future<void> _retry(

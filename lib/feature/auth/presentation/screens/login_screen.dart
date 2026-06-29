@@ -38,15 +38,15 @@ class _LoginScreenState extends State<LoginScreen> {
       body: Padding(
         padding: const EdgeInsets.all(24.0),
         child: BlocConsumer<AuthBloc, AuthState>(
-          listener: ( context, state) {
-            if(state is AuthSuccess){
-              Navigator.pushReplacementNamed(context, '/bookings');
-            }else if(state is AuthFailureState){
+          listener: (context, state) {
+            // Navigation on success is handled by AuthGate; here we only
+            // surface login failures.
+            if (state is AuthFailureState) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text(state.message)),
-              );              
+              );
             }
-            },
+          },
           builder: (context, state) {
             final isLoading = state is AuthLoading;
             return Column(

@@ -10,9 +10,10 @@ class ApiConstants {
   static String? overrideBaseUrl;
 
   static String get baseUrl {
-    if ( overrideBaseUrl != null) return overrideBaseUrl!;
+    if (overrideBaseUrl != null) return overrideBaseUrl!;
+    // Android emulator reaches the host machine via 10.0.2.2.
     if (Platform.isAndroid) {
-      return 'http:10.0.2.2: $_port';
+      return 'http://10.0.2.2:$_port';
     }
     return 'http://localhost:$_port';
   }
