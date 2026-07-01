@@ -35,8 +35,16 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
 
     result.fold(
-      (failure) => emit(AuthFailureState(failure.message)),
-      (user) => emit(AuthSuccess(user)),
+      (failure) {
+        // ignore: avoid_print
+        print('LOGIN FAILED -> ${failure.runtimeType}: ${failure.message}');
+        emit(AuthFailureState(failure.message));
+      },
+      (user) {
+        // ignore: avoid_print
+        print('LOGIN SUCCESS -> emitting AuthSuccess for ${user.username}');
+        emit(AuthSuccess(user));
+      },
     );
   }
 
