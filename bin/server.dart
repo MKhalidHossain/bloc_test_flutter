@@ -47,9 +47,16 @@ void main() async {
   // Pending sync (testing)
   app.get('/pending-sync', (Request request) => handlePendingSync());
 
+  // All handlers return JSON bodies; declare it so clients (Dio) decode them.
+  final jsonContentType = createMiddleware(
+    responseHandler: (response) =>
+        response.change(headers: {'content-type': 'application/json'}),
+  );
+
   final handler = const Pipeline()
       .addMiddleware(corsHeaders())
       .addMiddleware(logRequests())
+      .addMiddleware(jsonContentType)
       .addHandler(app);
 
   final port = int.tryParse(Platform.environment['PORT'] ?? '8080') ?? 8080;
