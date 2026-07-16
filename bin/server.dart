@@ -50,6 +50,7 @@ void main() async {
   final handler = const Pipeline()
       .addMiddleware(corsHeaders())
       .addMiddleware(logRequests())
+      .addMiddleware(_jsonContentType())
       .addHandler(app);
 
   final port = int.tryParse(Platform.environment['PORT'] ?? '8080') ?? 8080;
@@ -57,3 +58,20 @@ void main() async {
 
   print('Mock API server running at http://localhost:$port');
 }
+
+/// All handlers return `jsonEncode(...)` bodies, but `Response.ok(String)`
+/// defaults to `content-type: text/plain`. Dio only decodes a response into a
+/// Map when the content-type is a JSON mime type, so without this the client
+/// receives a raw String and every request fails with a cast error. Stamp the
+/// correct content-type on every JSON response.
+Middleware _jsonContentType() => (innerHandler) => (request) async {
+      final response = await innerHandler(request);
+      // Leave non-JSON bodies (if any) untouched.
+      final existing = response.headers['content-type'];
+      if (existing != null && !existing.contains('text/plain')) {
+        return response;
+      }
+      return response.change(
+        headers: {'content-type': 'application/json; charset=utf-8'},
+      );
+    };
